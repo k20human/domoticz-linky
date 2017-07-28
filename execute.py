@@ -54,10 +54,10 @@ else:
     logger.error('Your configuration file doesn\'t exists')
     sys.exit('Your configuration file doesn\'t exists')
 
-# domoticz server & port information
+# Domoticz server & port information
 domoticzServer = config['domoticz_server']
 
-# domoticz IDX
+# Domoticz IDX
 domoticzIdx = config['domoticz_idx']
 
 # Enedis Login
@@ -82,10 +82,11 @@ def export_days_values(res):
         'rid': domoticzIdx
     }).json()
 
+    counterTodayValue = int(float(counter['result'][0]['CounterToday'].replace(' kWh', '')))
     counterValue = int(float(counter['result'][0]['Counter'].replace(' kWh', '')))
 
     # Send to Domoticz only if data not send today
-    if counterValue == 0:
+    if counterTodayValue == 0:
         res = domoticzApi.call({
             'type': 'command',
             'param': 'udevice',
@@ -104,17 +105,22 @@ def export_days_values(res):
 def dtostr(date):
     return date.strftime("%d/%m/%Y")
 
-def call_enedis_api():
-    token = linky.login(enedisLogin, enedisPassword)
+def get_data_per_day(token):
     today = datetime.date.today()
 
-    res_day = linky.get_data_per_day(token, dtostr(today - relativedelta(days=1, months=1)), dtostr(today - relativedelta(days=1)))
+    return linky.get_data_per_day(token, dtostr(today - relativedelta(days=1, months=1)),
+                                     dtostr(today - relativedelta(days=1)))
+
+def call_enedis_api():
+    token = linky.login(enedisLogin, enedisPassword)
+
+    res_day = get_data_per_day(token)
 
     # If cookie has expired retry
     if res_day is None:
         logger.info("Cookie has expired")
         token = linky.login(enedisLogin, enedisPassword)
-        res_day = linky.get_data_per_day(token, dtostr(today - relativedelta(days=1)), dtostr(today))
+        res_day = get_data_per_day(token)
 
     return res_day
 
