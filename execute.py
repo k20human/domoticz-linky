@@ -22,8 +22,6 @@ import logging
 import datetime
 import url
 import time
-import sqlite3
-import math
 from dateutil.relativedelta import relativedelta
 from logging.handlers import RotatingFileHandler
 
@@ -82,11 +80,11 @@ def export_days_values(res):
         'rid': domoticzIdx
     }).json()
 
-    counterTodayValue = int(float(counter['result'][0]['CounterToday'].replace(' kWh', '')))
-    counterValue = int(float(counter['result'][0]['Counter'].replace(' kWh', '')))
+    lastUpdate = counter['result'][0]['LastUpdate'].split(' ')[0]
+    counterValue = int(float(counter['result'][0]['Counter'].replace(' kWh', '')) * 1000)
 
     # Send to Domoticz only if data not send today
-    if counterTodayValue == 0:
+    if lastUpdate != time.strftime("%Y/%m/%d"):
         res = domoticzApi.call({
             'type': 'command',
             'param': 'udevice',
