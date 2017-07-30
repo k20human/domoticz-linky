@@ -84,7 +84,7 @@ def export_days_values(res):
     counterValue = int(float(counter['result'][0]['Counter'].replace(' kWh', '')) * 1000)
 
     # Send to Domoticz only if data not send today
-    if lastUpdate != time.strftime("%Y/%m/%d"):
+    if lastUpdate != time.strftime("%Y-%m-%d"):
         res = domoticzApi.call({
             'type': 'command',
             'param': 'udevice',
