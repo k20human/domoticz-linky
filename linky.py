@@ -21,6 +21,7 @@ import base64
 import requests
 import pickle
 import os
+import json
 
 LOGIN_BASE_URI = 'https://espace-client-connexion.enedis.fr'
 API_BASE_URI = 'https://espace-client-particuliers.enedis.fr/group/espace-particuliers'
@@ -103,7 +104,7 @@ def get_data_per_year(token):
 
 
 def _get_data(token, resource_id, start_date=None, end_date=None):
-    id = 'lincspartdisplaycdc_WAR_lincspartcdcportlet_INSTANCE_partlincspartcdcportlet'
+    id = 'lincspartdisplaycdc_WAR_lincspartcdcportlet'
     prefix = '_' + id + '_'
 
     # We send the session token so that the server knows who we are
@@ -137,4 +138,4 @@ def _get_data(token, resource_id, start_date=None, end_date=None):
         os.remove(COOKIE_FILE_2)
         return None
 
-    return req.json()
+    return json.loads(req.text)
